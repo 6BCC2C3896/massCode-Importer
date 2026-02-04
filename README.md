@@ -7,7 +7,7 @@
 A specialized tool to bridge the gap between **GitHub Gists** and **[massCode v4](https://masscode.io/)**. 
 
 > **? The Problem:** MassCode v4 lacks a reliable "Import Gist" or "Import Snippets JSON" feature.
-> **? The Solution:** This tool generates a **MassCode v3 compatible storage folder**. You then use MassCode v4's **"Migrate"** feature to "adopt" this folder, instantly importing all your gists with folders, tags, and multi-file fragments intact.
+> **? The Solution:** This tool generates a **MassCode v3 compatible storage file**. You then use MassCode v4's **"Migrate"** feature to adopt this data, instantly importing all your gists with folders, tags, and multi-file fragments intact.
 
 ## Key Fixes in this Fork
 *   ? **Migration Schema:** Generates the exact legacy `db.json` schema required by the v4 migration engine.
@@ -42,27 +42,26 @@ Run the generator:
 ```bash
 npm start
 ```
-The tool will create a `db.json` file in your project root. **This root folder is now your "Migration Source".**
+The tool will create a `db.json` file in your project root.
 
 ---
 
 ## ? Importing into MassCode v4 (The Default Solution)
 
-Since standard snippet import is unreliable in v4, follow these steps to use the **Storage Override / Migration** method:
+Since standard snippet import is unreliable in v4, follow these steps to use the **Migration** method:
 
 1.  **Run this tool** to ensure `db.json` exists in your `massCode-Importer` folder.
 2.  Open **massCode v4**.
-3.  Go to **Preferences** (Settings icon in the bottom left).
+3.  Go to **Preferences**.
 4.  Select the **Storage** tab.
-5.  Find the **Migrate** button (this is designed to import v3 data).
-6.  **Crucial:** When the folder picker opens, select the **entire `massCode-Importer` folder** (the one containing `db.json`).
+5.  Find the **Migrate** button.
+6.  **Selection:** When the file picker opens, select the **`db.json`** file directly.
 7.  MassCode will detect the database, convert it to the new v4 SQLite format, and your Gists will appear instantly.
 
 ## Troubleshooting
 
 | Issue | Solution |
 | :--- | :--- |
-| **"No data found" during migration** | Ensure you selected the **folder** containing `db.json`, not the file itself. |
 | **`TypeError: ... (reading 'forEach')`** | You are likely using an old version of the importer. This fork fixes this specifically for MassCode v4. |
 | **Syntax highlighting missing** | Ensure your Gist files have proper extensions (e.g., `.js`, `.py`). |
 
