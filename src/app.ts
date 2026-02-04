@@ -4,7 +4,6 @@ import {v4 as uuidv4} from 'uuid';
 import * as fs from 'fs';
 import {Snippet} from './model/snippet';
 import {ProgrammingLanguage} from './model/programming-language';
-import {SnippetContent} from "./model/snippet-content";
 
 const GITHUB_API_BASE_URL = 'https://api.github.com';
 
@@ -78,7 +77,7 @@ async function convertGistToSnippet(gist: any): Promise<Snippet | null> {
         const tags = extractTags(description);
         const name = extractName(description);
 
-        const content: SnippetContent[] = [];
+        const content: any[] = [];
         for (const fileName in files) {
             const file = files[fileName];
             if (!file.raw_url) continue;
@@ -87,7 +86,7 @@ async function convertGistToSnippet(gist: any): Promise<Snippet | null> {
             content.push({
                 label: fileName,
                 language: file.language?.toLowerCase() || 'plain_text',
-                value: fileContent,
+                value: typeof fileContent === 'string' ? fileContent : JSON.stringify(fileContent),
             });
         }
 
@@ -104,7 +103,7 @@ async function convertGistToSnippet(gist: any): Promise<Snippet | null> {
             tagsIds: tags.map(getOrCreateTag),
             description,
             name,
-            content,
+            content, // Reverted to content for v3 migration compatibility
             createdAt: new Date(created_at).getTime(),
             updatedAt: updated_at ? new Date(updated_at).getTime() : Date.now(),
         };
@@ -201,6 +200,9 @@ function generateRandomString(length: number): string {
 function saveDataToFiles(): void {
     const data = {folders, tags, snippets};
     fs.writeFileSync('db.json', JSON.stringify(data, null, 2), 'utf-8');
+    fs.writeFileSync('snippets.json', JSON.stringify(snippets, null, 2), 'utf-8');
+    fs.writeFileSync('tags.json', JSON.stringify(tags, null, 2), 'utf-8');
+    fs.writeFileSync('folders.json', JSON.stringify(folders, null, 2), 'utf-8');
 }
 
 processUserSnippets(githubUsername);
