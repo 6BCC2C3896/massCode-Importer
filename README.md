@@ -1,115 +1,70 @@
-# MassCode Importer (Fixed & v4 Compatible)
+# MassCode Importer (Fixed & v4 Migration Ready)
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Maintenance](https://img.shields.io/badge/maintained-yes-green.svg)]()
 [![MassCode](https://img.shields.io/badge/massCode-v4%20Compatible-purple.svg)](https://masscode.io/)
 
-A robust command-line tool to import code snippets from **GitHub Gists** into **[massCode](https://masscode.io/)**.
+A specialized tool to bridge the gap between **GitHub Gists** and **[massCode v4](https://masscode.io/)**. 
 
-> **? Why use this fork?**
-> The original repository is outdated and does not generate the necessary files for MassCode v4.
-> **This version fixes:**
-> *   ? **Missing Files:** Correctly generates `snippets.json`, `db.json`, `tags.json`, and `folders.json`.
-> *   ? **v4 Compatibility:** Generates a legacy schema compatible with the **MassCode v4 Migration** tool (fixes the `TypeError: undefined` crash).
-> *   ? **Multi-file Gists:** Correctly maps Gist files to MassCode Fragments (Tabs).
+> **? The Problem:** MassCode v4 lacks a reliable "Import Gist" or "Import Snippets JSON" feature.
+> **? The Solution:** This tool generates a **MassCode v3 compatible storage folder**. You then use MassCode v4's **"Migrate"** feature to "adopt" this folder, instantly importing all your gists with folders, tags, and multi-file fragments intact.
 
-## Features
-
-*   **Seamless GitHub Sync:** Fetches all your public and secret Gists.
-*   **Smart Tagging:** Automatically creates tags in massCode based on `#hashtags` found in Gist descriptions.
-*   **Language Detection:** Maps file extensions to massCode languages.
-*   **Migration Ready:** Generates a `db.json` perfect for restoring a full library.
-*   **Portability:** Zero-dependency output (just JSON files).
+## Key Fixes in this Fork
+*   ? **Migration Schema:** Generates the exact legacy `db.json` schema required by the v4 migration engine.
+*   ? **Fragment Mapping:** Automatically converts multi-file Gists into MassCode "Fragments" (Tabs).
+*   ? **Zero-Crash logic:** Fixes the `TypeError: undefined (reading 'forEach')` common in other importers.
 
 ## Getting Started
 
 ### Prerequisites
-
-*   **Node.js** (v14 or higher)
+*   **Node.js** (v14+)
 *   **npm** or **yarn**
 
 ### Installation
-
-1.  Clone this repository:
-    ```bash
-    git clone https://github.com/6BCC2C3896/massCode-Importer.git
-    cd massCode-Importer
-    ```
-
-2.  Install dependencies:
-    ```bash
-    npm install
-    ```
+```bash
+git clone https://github.com/6BCC2C3896/massCode-Importer.git
+cd massCode-Importer
+npm install
+```
 
 ## Configuration
 
-1.  Create a `.env` file in the project root:
-    ```bash
-    # Windows
-    copy .env.example .env
-    # Linux/Mac
-    cp .env.example .env
-    ```
-
-2.  Edit `.env` with your GitHub credentials:
+1.  Create a `.env` file:
     ```ini
     GITHUB_TOKEN=ghp_your_classic_token_here
     GITHUB_USERNAME=your_username
     ```
-
-    > **Token Note:** Generate a **Classic Token** [here](https://github.com/settings/tokens).
-    > *   Select scope: `gist` (required to read your gists).
+2.  **Token Note:** Use a [Classic Token](https://github.com/settings/tokens) with the `gist` scope enabled.
 
 ## Usage
 
-Run the importer script:
-
+Run the generator:
 ```bash
 npm start
 ```
-
-### Output Files
-The script will generate the following in your project folder:
-*   `db.json`: **(Recommended)** The full database structure. Use this for "Migrating".
-*   `snippets.json`: Just the snippets array. Use this for "Import JSON".
-*   `tags.json`: All unique tags found.
-*   `folders.json`: Folder structure based on languages.
+The tool will create a `db.json` file in your project root. **This root folder is now your "Migration Source".**
 
 ---
 
-## Importing into MassCode v4
+## ? Importing into MassCode v4 (The Default Solution)
 
-There are two ways to get your data into MassCode.
+Since standard snippet import is unreliable in v4, follow these steps to use the **Storage Override / Migration** method:
 
-### Method 1: Full Migration (Recommended)
-*Best for initializing a new MassCode instance or doing a full restore.*
-
-1.  Open **massCode**.
-2.  Navigate to **Preferences** (Settings icon) > **Storage**.
-3.  Click the **Migrate** button.
-4.  Select the folder where your generated `db.json` is located.
-5.  MassCode will read the file, convert the schema, and populate your library.
-
-### Method 2: Direct Import
-*Best for adding snippets to an existing library without overwriting.*
-
-1.  Open **massCode**.
-2.  Go to **File** > **Import** > **JSON**.
-3.  Select the generated `snippets.json` file.
-4.  Your Gists will appear as new snippets.
+1.  **Run this tool** to ensure `db.json` exists in your `massCode-Importer` folder.
+2.  Open **massCode v4**.
+3.  Go to **Preferences** (Settings icon in the bottom left).
+4.  Select the **Storage** tab.
+5.  Find the **Migrate** button (this is designed to import v3 data).
+6.  **Crucial:** When the folder picker opens, select the **entire `massCode-Importer` folder** (the one containing `db.json`).
+7.  MassCode will detect the database, convert it to the new v4 SQLite format, and your Gists will appear instantly.
 
 ## Troubleshooting
 
-| Error | Cause | Solution |
-| :--- | :--- | :--- |
-| `TypeError: ... (reading 'forEach')` | Using an incompatible `db.json` schema. | **Use this fork!** We fixed the schema to match what MassCode expects. |
-| `GitHub token is missing` | `.env` file not found or empty. | Ensure `.env` exists in root and contains `GITHUB_TOKEN`. |
-| `401 Unauthorized` | Invalid Token. | Regenerate your GitHub Classic Token. |
-
-## Contributing
-
-We welcome pull requests! Please ensure any changes to the data model (`src/model/snippet.ts`) are tested against the MassCode migration tool.
+| Issue | Solution |
+| :--- | :--- |
+| **"No data found" during migration** | Ensure you selected the **folder** containing `db.json`, not the file itself. |
+| **`TypeError: ... (reading 'forEach')`** | You are likely using an old version of the importer. This fork fixes this specifically for MassCode v4. |
+| **Syntax highlighting missing** | Ensure your Gist files have proper extensions (e.g., `.js`, `.py`). |
 
 ## License
-
 MIT
