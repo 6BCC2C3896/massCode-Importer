@@ -1,105 +1,115 @@
-# massCode Importer
+# MassCode Importer (Fixed & v4 Compatible)
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Maintenance](https://img.shields.io/badge/maintained-yes-green.svg)]()
+[![MassCode](https://img.shields.io/badge/massCode-v4%20Compatible-purple.svg)](https://masscode.io/)
 
-massCode-Importer is a command-line tool designed to simplify the process of importing code snippets from your GitHub
-Gists into [massCode](https://masscode.io/), a lightweight and cross-platform code snippet manager.
+A robust command-line tool to import code snippets from **GitHub Gists** into **[massCode](https://masscode.io/)**.
 
-This tool converts your Gists into massCode-compatible snippets and tags for easy organization and access. It supports generating a **v3-compatible `db.json`** which allows for seamless migration into **massCode v4**.
-
-## Table of Contents
-
-- [Features](#features)
-- [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-- [Usage](#usage)
-- [Importing into MassCode](#importing-into-masscode)
-- [License](#license)
+> **? Why use this fork?**
+> The original repository is outdated and does not generate the necessary files for MassCode v4.
+> **This version fixes:**
+> *   ? **Missing Files:** Correctly generates `snippets.json`, `db.json`, `tags.json`, and `folders.json`.
+> *   ? **v4 Compatibility:** Generates a legacy schema compatible with the **MassCode v4 Migration** tool (fixes the `TypeError: undefined` crash).
+> *   ? **Multi-file Gists:** Correctly maps Gist files to MassCode Fragments (Tabs).
 
 ## Features
 
-- Import code snippets from GitHub Gists into massCode.
-- Automatically create tags based on the hashtags in your Gist descriptions.
-- Convert Gist files into massCode snippet content (mapped to Fragments/Tabs).
-- **Outputs multiple formats:**
-    - `db.json` (Full database structure, ideal for Migration).
-    - `snippets.json` (Raw snippets array).
-    - `tags.json` and `folders.json`.
+*   **Seamless GitHub Sync:** Fetches all your public and secret Gists.
+*   **Smart Tagging:** Automatically creates tags in massCode based on `#hashtags` found in Gist descriptions.
+*   **Language Detection:** Maps file extensions to massCode languages.
+*   **Migration Ready:** Generates a `db.json` perfect for restoring a full library.
+*   **Portability:** Zero-dependency output (just JSON files).
 
 ## Getting Started
 
 ### Prerequisites
 
-Before you begin, make sure you have the following prerequisites installed on your system:
-
-- [Node.js](https://nodejs.org/) (>= 14.0.0)
-- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/) package manager
+*   **Node.js** (v14 or higher)
+*   **npm** or **yarn**
 
 ### Installation
 
-1. Clone the repository:
+1.  Clone this repository:
+    ```bash
+    git clone https://github.com/6BCC2C3896/massCode-Importer.git
+    cd massCode-Importer
+    ```
 
-```shell
-git clone https://github.com/YourUsername/massCode-Importer.git
-```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
 
-2. Change to the project's directory:
+## Configuration
 
-```shell
-cd massCode-Importer
-```
+1.  Create a `.env` file in the project root:
+    ```bash
+    # Windows
+    copy .env.example .env
+    # Linux/Mac
+    cp .env.example .env
+    ```
 
-3. Install the required dependencies using npm or yarn:
+2.  Edit `.env` with your GitHub credentials:
+    ```ini
+    GITHUB_TOKEN=ghp_your_classic_token_here
+    GITHUB_USERNAME=your_username
+    ```
 
-```shell
-npm install
-# or
-yarn install
-```
+    > **Token Note:** Generate a **Classic Token** [here](https://github.com/settings/tokens).
+    > *   Select scope: `gist` (required to read your gists).
 
 ## Usage
 
-To use `massCode-Importer`, follow these steps:
+Run the importer script:
 
-1. Make sure you have set up your GitHub Gists with the necessary code snippets and descriptions.
-
-2. Create a `.env` file in the project directory and add your GitHub token:
-
-```shell
-GITHUB_TOKEN=your_github_token_here
-GITHUB_USERNAME=your_github_username_here
-```
-
-Replace `your_github_token_here` with your GitHub personal access token and `your_github_username_here` with your
-GitHub username. Follow this [link](https://github.com/settings/tokens) to create the Classic Token. Select the `gist`
-scope.
-
-3. Run the importer:
-
-```shell
+```bash
 npm start
 ```
 
-The importer will fetch your GitHub Gists and generate the files in the project root.
+### Output Files
+The script will generate the following in your project folder:
+*   `db.json`: **(Recommended)** The full database structure. Use this for "Migrating".
+*   `snippets.json`: Just the snippets array. Use this for "Import JSON".
+*   `tags.json`: All unique tags found.
+*   `folders.json`: Folder structure based on languages.
 
-## Importing into MassCode
+---
 
-### For MassCode v4 (Recommended)
-This tool generates a `db.json` file compatible with the MassCode v3 schema, which the v4 Migration tool expects.
+## Importing into MassCode v4
 
-1. Open **massCode**.
-2. Go to **Preferences > Storage**.
-3. Click **Migrate**.
-4. Select the folder containing your generated `db.json`.
-5. MassCode will process the file and import all snippets, folders, and tags.
+There are two ways to get your data into MassCode.
 
-### Alternate Method (JSON Import)
-You can also import just the snippets:
-1. Open **massCode**.
-2. Go to **File > Import > JSON**.
-3. Select the generated `snippets.json`.
+### Method 1: Full Migration (Recommended)
+*Best for initializing a new MassCode instance or doing a full restore.*
+
+1.  Open **massCode**.
+2.  Navigate to **Preferences** (Settings icon) > **Storage**.
+3.  Click the **Migrate** button.
+4.  Select the folder where your generated `db.json` is located.
+5.  MassCode will read the file, convert the schema, and populate your library.
+
+### Method 2: Direct Import
+*Best for adding snippets to an existing library without overwriting.*
+
+1.  Open **massCode**.
+2.  Go to **File** > **Import** > **JSON**.
+3.  Select the generated `snippets.json` file.
+4.  Your Gists will appear as new snippets.
+
+## Troubleshooting
+
+| Error | Cause | Solution |
+| :--- | :--- | :--- |
+| `TypeError: ... (reading 'forEach')` | Using an incompatible `db.json` schema. | **Use this fork!** We fixed the schema to match what MassCode expects. |
+| `GitHub token is missing` | `.env` file not found or empty. | Ensure `.env` exists in root and contains `GITHUB_TOKEN`. |
+| `401 Unauthorized` | Invalid Token. | Regenerate your GitHub Classic Token. |
+
+## Contributing
+
+We welcome pull requests! Please ensure any changes to the data model (`src/model/snippet.ts`) are tested against the MassCode migration tool.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+MIT
